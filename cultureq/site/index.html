@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<!--
+  CultureQ: front-end preview
+  ==================================================================
+  One self-contained HTML file: no build step, no dependencies.
+  Open it in any modern browser (Chrome/Edge/Samsung Internet/Firefox/
+  Safari, roughly 2020 or later) or host it on any static file server.
+
+  WHAT IT IS
+    A discovery app for events, programs, and scholarships.
+      OurQueue    search, filter and browse (list, calendar, map)
+      MyQueue     saved opportunities, alerts and per-date reminders
+      Submit      send an official link; optional anonymous contribution
+    Official pages open in a new tab; calendar files (.ics) and Google
+    Calendar links are provided for every opportunity.
+      Insights    anonymous engagement numbers, by link (#insights)
+
+  WHAT IS PREVIEW-ONLY (no server exists yet)
+    - Opportunities are embedded below (section 1). Each carries a
+      "source" note saying where and when it was checked. Dates are
+      added only when confirmed; always confirm on the official page.
+    - Saved items, reminders, alerts and the account live in the
+      visitor's browser storage and do not sync between devices.
+    - Reminders and alerts are saved but never delivered; push, text
+      and email delivery need a backend.
+    - The submit form only checks the link; a server would read the
+      page and fill in the details. Contributions collect nothing.
+    - The map is a simplified outline without street-level detail.
+
+  PRIVACY BY DESIGN
+    - Accounts: only a salted SHA-256 hash and a masked hint
+      (j•••@example.com) of the email or number are kept.
+    - Reminder and alert contacts: masked hints only.
+    - Location (for "Near you") is approximated, held in memory, never stored.
+    - Engagement counts (section 9) hold no identity: only how often things
+      happen and a coarse device label. Nothing is sent unless ANALYTICS_URL
+      is set, and never when Do Not Track or Global Privacy Control is on.
+    - Contributions are not linked to any account or opportunity.
+
+  PAGE LAYOUT
+    Styles   one style block, numbered sections 1-13
+    Script   one script block, sections:
+      1. Constants and opportunity data   6. UI components (cards, dialogs, map)
+      2. Utilities and storage        7. Views (home, browse, submit)
+      3. Dates and time zones         8. Reminders, alerts, accounts
+      4. Icons                        9. Engagement and Insights
+      5. Filtering, search, sorting   10. Events and start-up
+
+  CONVENTIONS
+    - Markup is rendered from template strings; all user or opportunity
+      text goes through esc().
+    - Clicks use data-act="name" mapped to ACTIONS; forms use
+      data-form="name" mapped to FORMS.
+-->
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>CultureQ — events, programs, and scholarships worldwide</title>
+  <meta name="description" content="CultureQ: events, programs, and scholarships that open doors, worldwide.">
+  <meta name="theme-color" content="#fffaeb">
+  <meta name="color-scheme" content="light">
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="CultureQ">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns=%27http://www.w3.org/2000/svg%27%20viewBox=%270%200%2064%2064%27%3E%3Crect%20width=%2764%27%20height=%2764%27%20rx=%2714%27%20fill=%27%23d9a521%27/%3E%3Ctext%20x=%2732%27%20y=%2743%27%20text-anchor=%27middle%27%20font-family=%27Inter%2CHelvetica%2CArial%2Csans-serif%27%20font-weight=%27800%27%20font-size=%2730%27%20letter-spacing=%27-2%27%20fill=%27%232b2208%27%3ECQ%3C/text%3E%3C/svg%3E">
+  <link rel="apple-touch-icon" href="data:image/png;base64,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">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip" href="#app">Skip to content</a>
+  <header>
+    <a class="brand" href="#home" data-act="go" data-view="home">
+      <span class="brand-mark" aria-hidden="true">CQ</span>
+      <span class="brand-name">CultureQ<svg class="brand-gem" width="9" height="9" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 .5l5.5 5.5L6 11.5.5 6z" fill="#d9a521"/></svg></span>
+    </a>
+    <nav id="nav" aria-label="Main"></nav>
+  </header>
+  <main id="app" tabindex="-1"><p class="muted">Loading…</p></main>
+  <footer class="footer"><span>CultureQ</span><svg class="footer-gem" width="8" height="8" viewBox="0 0 12 12" aria-hidden="true"><path d="M6 .5l5.5 5.5L6 11.5.5 6z" fill="currentColor"/></svg><span>Increasing our access to cultural capital.</span></footer>
+  <div id="toast" role="status" aria-live="polite"></div>
+  <dialog id="detail" aria-labelledby="detail-title"></dialog>
+
+  <dialog id="sheet" aria-labelledby="sheet-title"></dialog>
+  <script src="app.js"></script>
+</body>
+</html>
