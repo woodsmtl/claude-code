@@ -12,7 +12,7 @@ artifact is published from it.
 2. Read the live artifact and save it. If it is not identical to `node scripts/build.mjs` output, someone published
    outside the repo: run `node scripts/split.mjs <saved file>`, commit that alone as
    `Sync from artifact <version>`, and build on it.
-3. Work on a branch named `nightly/YYYY-MM-DD`, using tonight's date in America/New_York.
+3. Work on a branch named `claude/nightly-YYYY-MM-DD`, using tonight's date in America/New_York.
 
 ## 1. Never delete past listings
 
