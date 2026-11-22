@@ -1,0 +1,15 @@
+# For CultureQ's own repository (this folder becomes its root). Runs the test suite on every push and pull request.
+name: Test
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install --no-save playwright@1.49.1 && npx playwright install --with-deps chromium
+      - run: npm test

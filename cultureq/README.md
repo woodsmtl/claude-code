@@ -7,6 +7,8 @@ Nothing here is deployed. The analytics worker, `ANALYTICS_URL` and the Stripe l
 ## Layout
 
 - `site/`: `index.html`, `styles.css`, `app.js`. Vanilla JS, no build step. Open `site/index.html` in a browser.
+- `NIGHTLY.md` is the nightly task's procedure.
+- `scripts/build.mjs` joins `site/` back into one page for the artifact (`node scripts/build.mjs` writes `dist/cultureq.html`).
 - `scripts/split.mjs` regenerates `site/` from the single-file page saved from the artifact:
   `npm run split -- path/to/page.html`
 - `tests/`
